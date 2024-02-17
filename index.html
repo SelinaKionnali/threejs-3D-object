@@ -29,6 +29,7 @@ background-size: cover;">
     <script type="module">
         import * as THREE from 'https://unpkg.com/three@latest/build/three.module.js';
         import { OrbitControls } from 'https://unpkg.com/three/examples/jsm/controls/OrbitControls.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
       
         // Your Three.js code here
       
@@ -51,13 +52,13 @@ background-size: cover;">
     controls.enableDamping = true;
     controls.zoomToCursor = true;
 
-    //Resize event
-    window.addEventListener('resize', () => { // Add an event listener to the window
-            // console.log('resize', container.offsetWidth, container.offsetHeight); // Log the width and height of the container element
-            camera.aspect = container.offsetWidth / container.offsetHeight; // Set the aspect ratio of the camera
-            camera.updateProjectionMatrix(); // Update the projection matrix of the camera
-            renderer.setSize(container.offsetWidth, container.offsetHeight); // Set the size of the renderer
-        });
+    // //Resize event
+    // window.addEventListener('resize', () => { // Add an event listener to the window
+    //         // console.log('resize', container.offsetWidth, container.offsetHeight); // Log the width and height of the container element
+    //         camera.aspect = container.offsetWidth / container.offsetHeight; // Set the aspect ratio of the camera
+    //         camera.updateProjectionMatrix(); // Update the projection matrix of the camera
+    //         renderer.setSize(container.offsetWidth, container.offsetHeight); // Set the size of the renderer
+    //     });
 
   //Light
     const light = new THREE.PointLight(0xffffff, 1, 100);
@@ -72,17 +73,27 @@ background-size: cover;">
 
         camera.position.z = 5;
 
+         // Load a GLB model
+    const loader = new GLTFLoader();
+    loader.load('path/to/your/model.glb', function (gltf) {
+        // Called when the model is loaded
+        scene.add(gltf.scene); // Add the loaded model to the scene
+        animate(); // Start the animation loop once the model is loaded
+    }, undefined, function (error) {
+        console.error(error); // Log any loading errors
+    });
+
         function animate() {
             controls.update();
             requestAnimationFrame(animate);
-
-            mesh.rotation.x += 0.003;
-            mesh.rotation.y += 0.003;
-
             renderer.render(scene, camera);
         }
 
-        animate();
-    </script>
+  // Optional: Resize listener for the container
+  window.addEventListener('resize', () => {
+        camera.aspect = container.offsetWidth / container.offsetHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.offsetWidth, container.offsetHeight);
+    });    </script>
         </body>
 </html>
