@@ -10,14 +10,13 @@
     <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
     <script async src="https://ga.jspm.io/npm:es-module-shims@1.8.2/dist/es-module-shims.js"></script>
     <script type="importmap">
-        {
-          "imports": {
-            "three": "https://unpkg.com/three@0.161.0/build/three.module.js",
-            "three/addons/": "https://unpkg.com/three@0.161.0/examples/jsm/"
-          }
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.161.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.161.0/examples/jsm/"
         }
-      </script>
-</head>
+      }
+    </script></head>
 
 <body style="background: url(https://github.com/SelinaKionnali/threejs-3D-object/blob/main/assets/LightformLogowithRS.png?raw=true); background-repeat: no-repeat;
 background-size: cover;">
@@ -27,73 +26,82 @@ background-size: cover;">
     <script async src="https://unpkg.com/es-module-shims@0.6.0/dist/es-module-shims.js"></script>
 
     <script type="module">
-        import * as THREE from 'https://unpkg.com/three@latest/build/three.module.js';
-        import { OrbitControls } from 'https://unpkg.com/three/examples/jsm/controls/OrbitControls.js';
-        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import * as THREE from 'https://unpkg.com/three@latest/build/three.module.js';
+  import { OrbitControls } from 'https://unpkg.com/three/examples/jsm/controls/OrbitControls.js';
+  import { GLTFLoader } from 'https://unpkg.com/three/examples/jsm/loaders/GLTFLoader.js';
+  import { DRACOLoader } from 'https://unpkg.com/three@0.161.0/examples/jsm/loaders/DRACOLoader.js';
       
-        // Your Three.js code here
+      const container = document.querySelector('#threejs-container');
+      const scene = new THREE.Scene(); 
+      const camera = new THREE.PerspectiveCamera(80, container.offsetWidth / container.offsetHeight, 0.1, 50);
+      camera.position.z = 5; 
+      scene.add(camera); 
+
       
-    const container = document.querySelector('#threejs-container');
-
-  const scene = new THREE.Scene(); // Create a scene
-
-  // Create a camera
-  const camera = new THREE.PerspectiveCamera(80    , container.offsetWidth / container.offsetHeight, 0.1, 100);
-  scene.add(camera); // Add camera to scene to access in the console
   
-  // Create a renderer
-  const renderer = new THREE.WebGLRenderer({ alpha: true }); // Enable transparency
-  renderer.setSize(container.offsetWidth, container.offsetHeight);
-  renderer.setClearColor(0x000000, 0); // Set clear color to black with 0 alpha
-  container.appendChild(renderer.domElement);
+      const renderer = new THREE.WebGLRenderer({ alpha: true });
+      renderer.setSize(container.offsetWidth, container.offsetHeight);
+      renderer.setClearColor(0x000000, 0); 
+      container.appendChild(renderer.domElement);
+  
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.zoomToCursor = true;
+  
+      const light = new THREE.PointLight(0xffffff, 1, 100);
+      light.position.set(0, 10, 10); 
+      scene.add(light);
 
-    //Orbit Controls
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.zoomToCursor = true;
+// Add an ambient light to softly light everything
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+scene.add(ambientLight);
 
-    // //Resize event
-    // window.addEventListener('resize', () => { // Add an event listener to the window
-    //         // console.log('resize', container.offsetWidth, container.offsetHeight); // Log the width and height of the container element
-    //         camera.aspect = container.offsetWidth / container.offsetHeight; // Set the aspect ratio of the camera
-    //         camera.updateProjectionMatrix(); // Update the projection matrix of the camera
-    //         renderer.setSize(container.offsetWidth, container.offsetHeight); // Set the size of the renderer
-    //     });
-
-  //Light
-    const light = new THREE.PointLight(0xffffff, 1, 100);
-    light.position.set(0, 10, 10); 
-    scene.add(light);
-
-        let geometry = new THREE.SphereGeometry(2, 20, 20);
-        let material = new THREE.MeshBasicMaterial({ color: "#f19c38", wireframe: true});
-        let mesh = new THREE.Mesh(geometry, material);
-        scene.add(mesh);
+// Add a directional light for stronger, directional lighting
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(0, 10, 10);
+scene.add(directionalLight);
 
 
-        camera.position.z = 5;
+      // Create an instance of DRACOLoader
+const dracoLoader = new DRACOLoader();
+// Set the path to the Draco decoder - this path may vary depending on where you've hosted the decoder files
+// Set the path to the Draco decoder
+dracoLoader.setDecoderPath('https://unpkg.com/three@0.161.0/examples/jsm/libs/draco/');
 
-         // Load a GLB model
-    const loader = new GLTFLoader();
-    loader.load('/Users/selinalavery/Documents/Kionnali_LightForm/Three_js_3d/vite-project/assets/spark.glb', function (gltf) {
-        // Called when the model is loaded
-        scene.add(gltf.scene); // Add the loaded model to the scene
-        animate(); // Start the animation loop once the model is loaded
-    }, undefined, function (error) {
-        console.error(error); // Log any loading errors
-    });
-
-        function animate() {
-            controls.update();
-            requestAnimationFrame(animate);
-            renderer.render(scene, camera);
+// Pass the DRACOLoader instance to GLTFLoader
+const loader = new GLTFLoader();
+loader.setDRACOLoader(dracoLoader);
+  
+      // Load the GLB model
+      loader.load('assets/spark-compressed.glb', function (gltf) {
+    gltf.scene.traverse((object) => {
+        if (object.isMesh) {
+            // Assuming the floor has a specific name assigned in the 3D modeling software
+            if (object.name === 'FloorName') {
+                object.visible = false; // This hides the mesh
+                // or
+                object.parent.remove(object); // This removes the mesh from the scene
+            }
         }
-
-  // Optional: Resize listener for the container
-  window.addEventListener('resize', () => {
-        camera.aspect = container.offsetWidth / container.offsetHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(container.offsetWidth, container.offsetHeight);
-    });    </script>
-        </body>
+    });
+    scene.add(gltf.scene);
+    animate();
+}, undefined, function (error) {
+    console.error(error);
+});
+  
+      function animate() {
+          controls.update();
+          requestAnimationFrame(animate);
+          renderer.render(scene, camera);
+      }
+  
+      // Resize listener for the container
+      window.addEventListener('resize', () => {
+          camera.aspect = container.offsetWidth / container.offsetHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(container.offsetWidth, container.offsetHeight);
+      });
+  </script>
+          </body>
 </html>
