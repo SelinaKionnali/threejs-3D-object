@@ -30,16 +30,22 @@ import * as THREE from 'https://unpkg.com/three@latest/build/three.module.js';
   import { OrbitControls } from 'https://unpkg.com/three/examples/jsm/controls/OrbitControls.js';
   import { GLTFLoader } from 'https://unpkg.com/three/examples/jsm/loaders/GLTFLoader.js';
   import { DRACOLoader } from 'https://unpkg.com/three@0.161.0/examples/jsm/loaders/DRACOLoader.js';
-      
+  import { SpotLightHelper } from 'three';
+  import { DirectionalLightHelper} from 'three';
+  import { HemisphereLightHelper } from 'three';
+
+  
+    
+
       const container = document.querySelector('#threejs-container');
       const scene = new THREE.Scene(); 
-      const camera = new THREE.PerspectiveCamera(80, container.offsetWidth / container.offsetHeight, 0.1, 50);
-      camera.position.z = 5; 
+      const camera = new THREE.PerspectiveCamera(80, container.offsetWidth / container.offsetHeight, 0.2, 80);
+      camera.position.z = 12; 
       scene.add(camera); 
 
       
   
-      const renderer = new THREE.WebGLRenderer({ alpha: true });
+      const renderer = new THREE.WebGLRenderer({ alpha : true });
       renderer.setSize(container.offsetWidth, container.offsetHeight);
       renderer.setClearColor(0x000000, 0); 
       container.appendChild(renderer.domElement);
@@ -52,14 +58,37 @@ import * as THREE from 'https://unpkg.com/three@latest/build/three.module.js';
       light.position.set(0, 10, 10); 
       scene.add(light);
 
-// Add an ambient light to softly light everything
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+// Ambient light
+const ambientLight = new THREE.AmbientLight(0xffffff, 10); // soft white light
 scene.add(ambientLight);
 
-// Add a directional light for stronger, directional lighting
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-directionalLight.position.set(0, 10, 10);
+// Directional light
+const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+directionalLight.position.set(0, 1, 0); // you can change the position to suit your scene
+
 scene.add(directionalLight);
+
+// Directional light helper
+const directionalLightHelper = new DirectionalLightHelper(directionalLight);
+directionalLightHelper.position.set(0, 1, 0); // you can change the position to suit your scene
+scene.add(directionalLightHelper);
+
+// Hemisphere light
+const hemisphereLight = new THREE.HemisphereLight(0xff9700, 0xff9700, 10);
+scene.add(hemisphereLight);
+
+// Hemisphere light helper
+const hemisphereLightHelper = new HemisphereLightHelper(hemisphereLight, 10);
+scene.add(hemisphereLightHelper);
+
+// Spot light
+const spotLight = new THREE.SpotLight(0xff9700, 10);
+spotLight.position.set(0, 3, 5); // you can change the position to suit your scene
+scene.add(spotLight);
+
+// Spot light helper
+const spotLightHelper = new SpotLightHelper(spotLight);
+scene.add(spotLightHelper);
 
 
       // Create an instance of DRACOLoader
@@ -73,26 +102,67 @@ const loader = new GLTFLoader();
 loader.setDRACOLoader(dracoLoader);
   
       // Load the GLB model
-      loader.load('assets/spark-compressed.glb', function (gltf) {
+      loader.load('assets/spark - no interior.glb', function (gltf) {
     gltf.scene.traverse((object) => {
-        if (object.isMesh) {
-            // Assuming the floor has a specific name assigned in the 3D modeling software
-            if (object.name === 'FloorName') {
-                object.visible = false; // This hides the mesh
-                // or
-                object.parent.remove(object); // This removes the mesh from the scene
-            }
+        console.log(object);
+        if (object.isMesh && object.name === 'Part_77') {
+            // This is the glass object we want to change
+            object.material.transparent = true;       // Enable transparency
+            object.material.opacity = 0.5;            // Set the level of transparency
+            object.material.transmission = 0.9;       // Optional: only for MeshPhysicalMaterial to simulate glass-like transmission
+            object.material.reflectivity = 0.1;       // Some reflectivity
+            object.material.refractionRatio = 0.98;   // Refraction ratio for glass-like refraction
+            object.material.roughness = 0;            // Glass is smooth
+            object.material.metalness = 0;            // Glass is non-metallic
+            object.castShadow = true;                 // Enable if you want the glass to cast shadows
+            object.receiveShadow = true;              // Enable if you want the glass to receive shadows
         }
+        if (object.isMesh && object.name === 'Part_41') {
+            // Adjust the color for the object named 'Part_41'
+            object.material.color.set(0x77686b); // Set to brown
+            // If you need to adjust other material properties, you can do so here 
+        }
+        if (object.isMesh && object.name === 'Cube.038') {
+            // Adjust the color for the object named 'Part_41'
+            object.material.color.set(0x77686b); // Set to brown
+            // If you need to adjust other material properties, you can do so here 
+        }
+        if (object.isMesh && object.name === 'Plane') {
+            // Adjust the color for the object named 'Part_41'
+            object.visible = false; // This hides the mesh
+            // object.material.color.set(0x19783a); // Set to brown
+            // If you need to adjust other material properties, you can do so here 
+        }
+
+
     });
     scene.add(gltf.scene);
     animate();
 }, undefined, function (error) {
-    console.error(error);
+    // console.error(error);
 });
+
+
+//       loader.load('assets/spark - no interior.glb', function (gltf) {
+//     // Log each object to see their properties and names (optional)
+//     gltf.scene.traverse((object) => {
+//         console.log(object);
+//     });
+
+//     // Simply add the model to the scene
+//     scene.add(gltf.scene);
+
+//     // Start the animation loop
+//     animate();
+// }, undefined, function (error) {
+//     console.error(error);
+// });
   
       function animate() {
           controls.update();
           requestAnimationFrame(animate);
+          spotLightHelper.update(); // Call this for each spotlight helper
+          directionalLightHelper.update(); // Call this for each directional light helper
           renderer.render(scene, camera);
       }
   
