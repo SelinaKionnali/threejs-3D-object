@@ -251,7 +251,7 @@ const loader = new GLTFLoader();
 loader.setDRACOLoader(dracoLoader);
   
       // Load the GLB model
-      loader.load('/vite-project/assets/sparkNoInterior.glb', function (gltf) {
+      loader.load('/threejs-3D-object/blob/main/assets/sparkNoInterior.glb', function (gltf) {
     gltf.scene.traverse((object) => {
         console.log(object);
         if (object.isMesh && object.name === 'Part_77') {
