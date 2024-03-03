@@ -104,20 +104,20 @@ function onMouseMove(event) {
     mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
 }
 
-// add user instructions to the scene
+// Create the instructions container
 const instructions = document.createElement('div');
 instructions.style.position = 'absolute';
-instructions.style.zIndex = '100'; // Ensure it's above other elements
+instructions.style.zIndex = '100';
 instructions.style.top = '50px';
 instructions.style.left = '50px';
 instructions.style.color = 'white';
 instructions.style.fontFamily = 'Quicksand, sans-serif';
-instructions.style.fontSize = '1em'; // Adjusted for better readability
-instructions.style.backgroundColor = 'rgba(0, 0, 0, 0.8)'; // Slightly darker for better contrast
-instructions.style.padding = '20px'; // More padding to accommodate the close button
+instructions.style.fontSize = '1em';
+instructions.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+instructions.style.padding = '20px';
 instructions.style.borderRadius = '8px';
-instructions.style.width = '300px'; // Fixed width for consistent layout
-instructions.style.height = 'auto'; // Height to wrap content
+instructions.style.width = '300px';
+instructions.style.height = 'auto';
 instructions.innerHTML = `
     <h4>Instructions:</h4>
     <p>Click and drag with the left mouse button to rotate the model.</p>
@@ -128,7 +128,7 @@ instructions.innerHTML = `
 
 // Create the close button
 const closeButton = document.createElement('div');
-closeButton.innerHTML = '&times;'; // Use the HTML entity for a multiplication sign (X)
+closeButton.innerHTML = '&times;';
 closeButton.style.position = 'absolute';
 closeButton.style.top = '10px';
 closeButton.style.right = '10px';
@@ -142,9 +142,35 @@ instructions.appendChild(closeButton);
 // Append the instructions div to the body
 document.body.appendChild(instructions);
 
-// Add a click event listener to the close button
+// Create a "Show Instructions" button
+const showInstructionsButton = document.createElement('div');
+showInstructionsButton.innerHTML = 'Show Instructions';
+showInstructionsButton.style.position = 'absolute';
+showInstructionsButton.style.zIndex = '10';
+showInstructionsButton.style.top = '50px';
+showInstructionsButton.style.left = '100px';
+showInstructionsButton.style.color = 'white';
+showInstructionsButton.style.fontFamily = 'Quicksand, sans-serif';
+showInstructionsButton.style.fontSize = '1em';
+showInstructionsButton.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+showInstructionsButton.style.padding = '10px';
+showInstructionsButton.style.borderRadius = '8px';
+showInstructionsButton.style.cursor = 'pointer';
+showInstructionsButton.style.display = 'none'; // Initially hidden
+
+// Append the "Show Instructions" button to the body
+document.body.appendChild(showInstructionsButton);
+
+// Add event listener to the close button to hide instructions and show "Show Instructions" button
 closeButton.addEventListener('click', () => {
     instructions.style.display = 'none';
+    showInstructionsButton.style.display = 'block'; // Show the button to allow showing instructions again
+});
+
+// Add event listener to the "Show Instructions" button to show instructions and hide itself
+showInstructionsButton.addEventListener('click', () => {
+    instructions.style.display = 'block';
+    showInstructionsButton.style.display = 'none'; // Hide the button since instructions are visible
 });
 
 
