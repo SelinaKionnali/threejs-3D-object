@@ -145,9 +145,9 @@ closeButton.innerHTML = '&times;';
 closeButton.style.position = 'absolute';
 closeButton.style.top = '10px';
 closeButton.style.right = '10px';
-closeButton.style.color = 'red';
+closeButton.style.color = '#ff9700';
 closeButton.style.cursor = 'pointer';
-closeButton.style.fontSize = '1.5em';
+closeButton.style.fontSize = '2em';
 
 // Add the close button to the instructions div
 instructions.appendChild(closeButton);
@@ -251,7 +251,7 @@ const loader = new GLTFLoader();
 loader.setDRACOLoader(dracoLoader);
   
       // Load the GLB model
-      loader.load('assets/sparkNoInterior.glb', function (gltf) {
+      loader.load('/vite-project/assets/sparkNoInterior.glb', function (gltf) {
     gltf.scene.traverse((object) => {
         console.log(object);
         if (object.isMesh && object.name === 'Part_77') {
