@@ -28,6 +28,18 @@ body {
     /* You could also use a fixed height if that works better for your layout */
     padding-bottom: 7%;
   }        canvas { display: block; margin-top: 10%;}
+
+  @media (max-width: 768px) {
+  .instructions, .show-instructions-button {
+    font-size: 0.8em; /* Smaller font size on smaller screens */
+    padding: 15px; /* Adjust padding for smaller screens */
+  }
+}
+@media (max-width: 480px) {
+  .instructions, .show-instructions-button {
+    font-size: 0.7em; /* Even smaller font size for very small screens */
+  }
+}
     </style>
     <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
     <script async src="https://ga.jspm.io/npm:es-module-shims@1.8.2/dist/es-module-shims.js"></script>
@@ -108,16 +120,17 @@ function onMouseMove(event) {
 const instructions = document.createElement('div');
 instructions.style.position = 'absolute';
 instructions.style.zIndex = '100';
-instructions.style.top = '50px';
-instructions.style.left = '50px';
+instructions.style.top = '10%';
+instructions.style.left = '3%';
 instructions.style.color = 'white';
 instructions.style.fontFamily = 'Quicksand, sans-serif';
-instructions.style.fontSize = '1em';
+instructions.style.fontSize = 'calc(0.5vw + 0.6vh + 0.5vmin)'; // Experiment with values for best results;
 instructions.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
 instructions.style.padding = '20px';
 instructions.style.borderRadius = '8px';
-instructions.style.width = '300px';
-instructions.style.height = 'auto';
+instructions.style.width = '20%';
+instructions.style.height = 'fit-content';
+instructions.style.maxHeight = '80vh';
 instructions.innerHTML = `
     <h4>Instructions:</h4>
     <p>Click and drag with the left mouse button to rotate the model.</p>
@@ -147,11 +160,11 @@ const showInstructionsButton = document.createElement('div');
 showInstructionsButton.innerHTML = 'Show Instructions';
 showInstructionsButton.style.position = 'absolute';
 showInstructionsButton.style.zIndex = '10';
-showInstructionsButton.style.top = '50px';
-showInstructionsButton.style.left = '100px';
+showInstructionsButton.style.top = '10%';
+showInstructionsButton.style.left = '3%';
 showInstructionsButton.style.color = 'white';
 showInstructionsButton.style.fontFamily = 'Quicksand, sans-serif';
-showInstructionsButton.style.fontSize = '1em';
+showInstructionsButton.style.fontSize = 'calc(0.5vw + 0.6vh + 0.5vmin)';
 showInstructionsButton.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
 showInstructionsButton.style.padding = '10px';
 showInstructionsButton.style.borderRadius = '8px';
