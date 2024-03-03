@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
     <title>Three.js Sphere in Webflow</title>
     <style>
 body {
@@ -10,6 +13,7 @@ body {
     justify-content: center; /* This will vertically center the content */
     align-items: center;
     height: 100vh;
+    width: 100vw;
     margin: 0;
   }
 
@@ -22,10 +26,12 @@ body {
     width: 100%;
     height: 100vh; /* Adjust the height to control the vertical position */
     /* You could also use a fixed height if that works better for your layout */
+    padding-bottom: 7%;
   }        canvas { display: block; margin-top: 10%;}
     </style>
     <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
     <script async src="https://ga.jspm.io/npm:es-module-shims@1.8.2/dist/es-module-shims.js"></script>
+    
     <script type="importmap">
       {
         "imports": {
@@ -86,6 +92,63 @@ controls.minDistance = 2; // Minimum distance for zooming in
 controls.maxDistance = 10; // Maximum distance for zooming out
 // Disable panning
 controls.update();
+
+// add user interaction to the scene
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+window.addEventListener('mousemove', onMouseMove, false);
+function onMouseMove(event) {
+    // calculate mouse position in normalized device coordinates
+    // (-1 to +1) for both components
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+}
+
+// add user instructions to the scene
+const instructions = document.createElement('div');
+instructions.style.position = 'absolute';
+instructions.style.zIndex = '100'; // Ensure it's above other elements
+instructions.style.top = '50px';
+instructions.style.left = '50px';
+instructions.style.color = 'white';
+instructions.style.fontFamily = 'Quicksand, sans-serif';
+instructions.style.fontSize = '1em'; // Adjusted for better readability
+instructions.style.backgroundColor = 'rgba(0, 0, 0, 0.8)'; // Slightly darker for better contrast
+instructions.style.padding = '20px'; // More padding to accommodate the close button
+instructions.style.borderRadius = '8px';
+instructions.style.width = '300px'; // Fixed width for consistent layout
+instructions.style.height = 'auto'; // Height to wrap content
+instructions.innerHTML = `
+    <h4>Instructions:</h4>
+    <p>Click and drag with the left mouse button to rotate the model.</p>
+    <p>Scroll the mouse wheel to zoom in and out.</p>
+    <p>Click and drag with the right mouse button to pan the model.</p>
+    <p>Alternatively, press 'Ctrl' (or 'Cmd' on Mac) and drag with the left mouse button to pan.</p>
+`;
+
+// Create the close button
+const closeButton = document.createElement('div');
+closeButton.innerHTML = '&times;'; // Use the HTML entity for a multiplication sign (X)
+closeButton.style.position = 'absolute';
+closeButton.style.top = '10px';
+closeButton.style.right = '10px';
+closeButton.style.color = 'white';
+closeButton.style.cursor = 'pointer';
+closeButton.style.fontSize = '1.5em';
+
+// Add the close button to the instructions div
+instructions.appendChild(closeButton);
+
+// Append the instructions div to the body
+document.body.appendChild(instructions);
+
+// Add a click event listener to the close button
+closeButton.addEventListener('click', () => {
+    instructions.style.display = 'none';
+});
+
+
+
 
   
       const light = new THREE.PointLight(0xffffff, 1, 100);
@@ -227,6 +290,21 @@ loader.setDRACOLoader(dracoLoader);
       }
 
       window.addEventListener('resize', onWindowResize, false);
+
+        function onWindowResize() {
+            camera.aspect = container.offsetWidth / container.offsetHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.offsetWidth, container.offsetHeight);
+        }
+
+        // reset the position of the camera on zoom out
+        window.addEventListener('wheel', function (e) {
+            if (e.deltaY < 0) {
+                camera.position.z -= 0.1;
+            } else {
+                camera.position.z += 0.1;
+            }
+        });
 
 
   
