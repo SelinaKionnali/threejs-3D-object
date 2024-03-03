@@ -4,8 +4,21 @@
     <meta charset="UTF-8">
     <title>Three.js Sphere in Webflow</title>
     <style>
-        body { margin: 0; }
-        canvas { display: block; }
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* This will vertically center the content */
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  #threejs-container {
+    border: red 2px solid;
+    margin: 10% auto;
+    width: 50%;
+    height: 100vh; /* Adjust the height to control the vertical position */
+    /* You could also use a fixed height if that works better for your layout */
+  }        canvas { display: block; margin-top: 10%;}
     </style>
     <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
     <script async src="https://ga.jspm.io/npm:es-module-shims@1.8.2/dist/es-module-shims.js"></script>
@@ -18,7 +31,7 @@
       }
     </script></head>
 
-<body style="background: url(https://github.com/SelinaKionnali/threejs-3D-object/blob/main/assets/LightformLogowithRS.png?raw=true); background-repeat: no-repeat;
+<body style="background: url('https://github.com/SelinaKionnali/threejs-3D-object/blob/main/assets/LightformLogowithRS.png?raw=true'); background-repeat: no-repeat;
 background-size: cover;">
 
 
@@ -33,14 +46,14 @@ import * as THREE from 'https://unpkg.com/three@latest/build/three.module.js';
   import { SpotLightHelper } from 'three';
   import { DirectionalLightHelper} from 'three';
   import { HemisphereLightHelper } from 'three';
-
   
-    
+  let modelScene; // This will hold the GLTF scene once loaded
 
       const container = document.querySelector('#threejs-container');
       const scene = new THREE.Scene(); 
-      const camera = new THREE.PerspectiveCamera(80, container.offsetWidth / container.offsetHeight, 0.2, 80);
-      camera.position.z = 12; 
+      const camera = new THREE.PerspectiveCamera(100, container.offsetWidth / container.offsetHeight, 0.2, 80);
+      
+      camera.position.z = 20; 
       scene.add(camera); 
 
       
@@ -48,47 +61,75 @@ import * as THREE from 'https://unpkg.com/three@latest/build/three.module.js';
       const renderer = new THREE.WebGLRenderer({ alpha : true });
       renderer.setSize(container.offsetWidth, container.offsetHeight);
       renderer.setClearColor(0x000000, 0); 
+      renderer.physicallyCorrectLights = true;
+    renderer.toneMapping = THREE.ReinhardToneMapping;
+    renderer.toneMappingExposure = Math.pow(0.9, 5.0); // Adjust exposure to prevent washout
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap; // for softer shadows
+
       container.appendChild(renderer.domElement);
   
       const controls = new OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
+        controls.dampingFactor = 0.25;
       controls.zoomToCursor = true;
+      // Set the minimum and maximum polar angles (in radians) to control the vertical orbit limits
+controls.minPolarAngle = Math.PI / 4;   // 45 degrees
+controls.maxPolarAngle = Math.PI / 2.5; // 72 degrees
+controls.minDistance = 2; // Minimum distance for zooming in
+controls.maxDistance = 10; // Maximum distance for zooming out
+// Disable panning
+controls.update();
+
   
       const light = new THREE.PointLight(0xffffff, 1, 100);
-      light.position.set(0, 10, 10); 
+      light.position.set(10, 10, 10); 
       scene.add(light);
 
 // Ambient light
-const ambientLight = new THREE.AmbientLight(0xffffff, 10); // soft white light
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // soft white light
 scene.add(ambientLight);
 
+const backLight = new THREE.PointLight(0xffffff, 10, 100); // Create a point light with an intensity of 1
+backLight.position.set(10, 10, 10); // Position it at the back of the object (x, y, z) x is left and right, y is up and down, z is forward and backward
+scene.add(backLight);
+
+const lightTwo = new THREE.PointLight(0xffffff, 1, 100);
+lightTwo.position.set(1, 5, 10);
+scene.add(lightTwo);
+
 // Directional light
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-directionalLight.position.set(0, 1, 0); // you can change the position to suit your scene
+const directionalLight = new THREE.DirectionalLight(0xffe6cc, 1);
+directionalLight.position.set(10, 1, 10); // you can change the position to suit your scene
 
 scene.add(directionalLight);
 
+// add a second directional light
+const directionalLightTwo = new THREE.DirectionalLight(0xffe6cc, 1); // color, intensity colour is a light orange
+directionalLightTwo.position.set(0, 1, 0); // you can change the position to suit your scene
+scene.add(directionalLightTwo);
+
 // Directional light helper
-const directionalLightHelper = new DirectionalLightHelper(directionalLight);
-directionalLightHelper.position.set(0, 1, 0); // you can change the position to suit your scene
-scene.add(directionalLightHelper);
+// const directionalLightHelper = new DirectionalLightHelper(directionalLight);
+// directionalLightHelper.position.set(0, 1, 0); // you can change the position to suit your scene
+// scene.add(directionalLightHelper);
 
 // Hemisphere light
-const hemisphereLight = new THREE.HemisphereLight(0xff9700, 0xff9700, 10);
+const hemisphereLight = new THREE.HemisphereLight(0x87CEEB, 0x8B4513, 5); // sky color, ground color, intensity
 scene.add(hemisphereLight);
 
-// Hemisphere light helper
-const hemisphereLightHelper = new HemisphereLightHelper(hemisphereLight, 10);
-scene.add(hemisphereLightHelper);
+//Hemisphere light helper
+// const hemisphereLightHelper = new HemisphereLightHelper(hemisphereLight, 10);
+// scene.add(hemisphereLightHelper);
 
 // Spot light
-const spotLight = new THREE.SpotLight(0xff9700, 10);
+const spotLight = new THREE.SpotLight(0xffffff, 10, 100, Math.PI / 4, 0.5, 1); // color, intensity, distance, angle, penumbra, decay
 spotLight.position.set(0, 3, 5); // you can change the position to suit your scene
 scene.add(spotLight);
 
-// Spot light helper
-const spotLightHelper = new SpotLightHelper(spotLight);
-scene.add(spotLightHelper);
+//Spot light helper
+// const spotLightHelper = new SpotLightHelper(spotLight);
+// scene.add(spotLightHelper);
 
 
       // Create an instance of DRACOLoader
@@ -110,7 +151,7 @@ loader.setDRACOLoader(dracoLoader);
             object.material.transparent = true;       // Enable transparency
             object.material.opacity = 0.5;            // Set the level of transparency
             object.material.transmission = 0.9;       // Optional: only for MeshPhysicalMaterial to simulate glass-like transmission
-            object.material.reflectivity = 0.1;       // Some reflectivity
+            object.material.reflectivity = 0.5;       // Some reflectivity
             object.material.refractionRatio = 0.98;   // Refraction ratio for glass-like refraction
             object.material.roughness = 0;            // Glass is smooth
             object.material.metalness = 0;            // Glass is non-metallic
@@ -119,7 +160,9 @@ loader.setDRACOLoader(dracoLoader);
         }
         if (object.isMesh && object.name === 'Part_41') {
             // Adjust the color for the object named 'Part_41'
-            object.material.color.set(0x77686b); // Set to brown
+            object.material.roughness = 2; // wood is rough
+
+            object.material.color.set(0x5c391a); // Set to brown
             // If you need to adjust other material properties, you can do so here 
         }
         if (object.isMesh && object.name === 'Cube.038') {
@@ -133,9 +176,13 @@ loader.setDRACOLoader(dracoLoader);
             // object.material.color.set(0x19783a); // Set to brown
             // If you need to adjust other material properties, you can do so here 
         }
+        // Assign the loaded scene to modelScene
+    modelScene = gltf.scene;
+
 
 
     });
+    scene.add(modelScene);
     scene.add(gltf.scene);
     animate();
 }, undefined, function (error) {
@@ -161,10 +208,21 @@ loader.setDRACOLoader(dracoLoader);
       function animate() {
           controls.update();
           requestAnimationFrame(animate);
-          spotLightHelper.update(); // Call this for each spotlight helper
-          directionalLightHelper.update(); // Call this for each directional light helper
+        // Check if modelScene is defined before trying to rotate it
+    if (modelScene) {
+        modelScene.rotation.y += 0.002; // Adjust rotation speed as needed
+    }
+    
+    controls.update();
+
+        //   spotLightHelper.update(); // Call this for each spotlight helper
+        //   directionalLightHelper.update(); // Call this for each directional light helper
           renderer.render(scene, camera);
       }
+
+      window.addEventListener('resize', onWindowResize, false);
+
+
   
       // Resize listener for the container
       window.addEventListener('resize', () => {
