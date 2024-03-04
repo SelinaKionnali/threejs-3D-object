@@ -251,7 +251,7 @@ const loader = new GLTFLoader();
 loader.setDRACOLoader(dracoLoader);
   
       // Load the GLB model
-      loader.load('https://github.com/SelinaKionnali/threejs-3D-object/raw/main/assets/sparkNoIntv4.glb', function (gltf) {
+      loader.load('https://files.lightform.casa/sparkNoIntv4.glb', function (gltf) {
     gltf.scene.traverse((object) => {
         console.log(object);
         if (object.isMesh && object.name === 'Part_77') {
