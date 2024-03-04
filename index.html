@@ -251,7 +251,7 @@ const loader = new GLTFLoader();
 loader.setDRACOLoader(dracoLoader);
   
       // Load the GLB model
-      loader.load('https://pub-aa41a3fe93534b92918eaf62752c74e1.r2.dev', function (gltf) {
+      loader.load('assets/sparkNoInterior.glb', function (gltf) {
     gltf.scene.traverse((object) => {
         console.log(object);
         if (object.isMesh && object.name === 'Part_77') {
@@ -290,20 +290,10 @@ loader.setDRACOLoader(dracoLoader);
 
 
     });
-
-    
     scene.add(modelScene);
     scene.add(gltf.scene);
     animate();
-
-    }, 
-    function (xhr) {
-    // This function is called during the loading process
-    // It gives updates on the progress of the load
-    console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-  },
-    
-    undefined, function (error) {
+}, undefined, function (error) {
     // console.error(error);
 });
 
